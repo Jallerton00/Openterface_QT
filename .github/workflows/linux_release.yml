@@ -16,8 +16,8 @@ defaults:
 
 env:
   SOURCE_DIR:   ${{ github.workspace }}
-  QT_VERSION:   6.6.3
-  ARTIFACT:     OpenterfaceQT
+  QT_VERSION:   6.4.2
+  ARTIFACT:     openterfaceQT
 
 jobs:
   build:
@@ -31,6 +31,7 @@ jobs:
 
       - name: Setup Dependencies
         run: |
+
             echo "deb http://deb.debian.org/debian bookworm main contrib non-free non-free-firmware
             deb http://deb.debian.org/debian-security/ bookworm-security main contrib non-free non-free-firmware
             deb http://deb.debian.org/debian bookworm-updates main contrib non-free non-free-firmware" | sudo tee -a /etc/apt/sources.list
@@ -41,13 +42,14 @@ jobs:
                 qmake6 \
                 qt6-base-dev \
                 qt6-multimedia-dev \
-                qt6-serialport-dev
+                qt6-serialport-dev \
+                mesa-common-dev
 
       - name: Get all tags for correct version determination
         working-directory:  ${{ github.workspace }}
         run: |
           git fetch --all --tags -f
-              
+
       - name: Create build directory
         run:  mkdir ${{ runner.temp }}/build
 
@@ -69,9 +71,11 @@ jobs:
           Maintainer: TechXArtisan <info@techxartisan.com>
           Description: OpenterfaceQT" > package/DEBIAN/control
           # Copy files to package directory
-          cp -r ${{ runner.temp }}/build/* package/
+          mkdir -p package/usr/bin
+          cp -r build/openterfaceQT package/usr/bin
           # Build deb package
-          dpkg-deb --build package
+          mv package ${{ env.ARTIFACT }}
+          dpkg-deb --build ${{ env.ARTIFACT }}
               
       - name: Create build directory
         run:  mkdir ${{ runner.temp }}\build
@@ -86,4 +90,4 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: ${{ env.ARTIFACT }}
-          path: ${{ runner.temp }}/package.deb
+          path: ${{ runner.temp }}/${{ env.ARTIFACT }}.deb

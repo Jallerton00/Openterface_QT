@@ -31,8 +31,6 @@
 
 #include <QDebug>
 
-using namespace Qt::StringLiterals;
-
 ImageSettings::ImageSettings(QImageCapture *imageCapture, QWidget *parent)
     : QDialog(parent), ui(new Ui::ImageSettingsUi), imagecapture(imageCapture)
 {
@@ -62,8 +60,8 @@ ImageSettings::ImageSettings(QImageCapture *imageCapture, QWidget *parent)
     ui->imageResolutionBox->addItem(tr("Default Resolution"));
     for (const QSize &resolution : supportedResolutions) {
         ui->imageResolutionBox->addItem(
-                u"%1x%2"_s.arg(resolution.width()).arg(resolution.height()),
-                QVariant(resolution));
+            QString::asprintf("%1x%2", resolution.width(), resolution.height()),
+            QVariant(resolution));
     }
 }
 
@@ -106,5 +104,3 @@ void ImageSettings::selectComboBoxItem(QComboBox *box, const QVariant &value)
     if (idx != -1)
         box->setCurrentIndex(idx);
 }
-
-#include "moc_imagesettings.cpp"
