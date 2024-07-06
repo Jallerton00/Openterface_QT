@@ -43,7 +43,7 @@ public:
     static const QByteArray CMD_RESET;
 
     static const int ORIGINAL_BAUDRATE = 9600;
-    static const int DEFAULT_BAUDRATE = 115200;
+    static const int DEFAULT_BAUDRATE = 9600;
     
     explicit SerialPortManager(QObject *parent = nullptr);
     ~SerialPortManager();

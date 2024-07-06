@@ -47,18 +47,22 @@ ImageSettings::ImageSettings(QImageCapture *imageCapture, QWidget *parent)
 
     ui->imageQualitySlider->setRange(0, int(QImageCapture::VeryHighQuality));
 
+    QList<QSize> supportedResolutions = {};
+    if (imagecapture != nullptr)
+    {
+        supportedResolutions = imagecapture->captureSession()->camera()->cameraDevice().photoResolutions();
+
+        selectComboBoxItem(ui->imageCodecBox, QVariant::fromValue(imagecapture->fileFormat()));
+        selectComboBoxItem(ui->imageResolutionBox, QVariant(imagecapture->resolution()));
+        ui->imageQualitySlider->setValue(imagecapture->quality());
+    }
+
     ui->imageResolutionBox->addItem(tr("Default Resolution"));
-    const QList<QSize> supportedResolutions =
-            imagecapture->captureSession()->camera()->cameraDevice().photoResolutions();
     for (const QSize &resolution : supportedResolutions) {
         ui->imageResolutionBox->addItem(
             QString::asprintf("%1x%2", resolution.width(), resolution.height()),
             QVariant(resolution));
     }
-
-    selectComboBoxItem(ui->imageCodecBox, QVariant::fromValue(imagecapture->fileFormat()));
-    selectComboBoxItem(ui->imageResolutionBox, QVariant(imagecapture->resolution()));
-    ui->imageQualitySlider->setValue(imagecapture->quality());
 }
 
 ImageSettings::~ImageSettings()
@@ -80,9 +84,12 @@ void ImageSettings::changeEvent(QEvent *e)
 
 void ImageSettings::applyImageSettings() const
 {
-    imagecapture->setFileFormat(boxValue(ui->imageCodecBox).value<QImageCapture::FileFormat>());
-    imagecapture->setQuality(QImageCapture::Quality(ui->imageQualitySlider->value()));
-    imagecapture->setResolution(boxValue(ui->imageResolutionBox).toSize());
+    if (imagecapture != nullptr)
+    {
+        imagecapture->setFileFormat(boxValue(ui->imageCodecBox).value<QImageCapture::FileFormat>());
+        imagecapture->setQuality(QImageCapture::Quality(ui->imageQualitySlider->value()));
+        imagecapture->setResolution(boxValue(ui->imageResolutionBox).toSize());
+    }
 }
 
 QVariant ImageSettings::boxValue(const QComboBox *box) const

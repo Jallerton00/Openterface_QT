@@ -58,10 +58,9 @@ void SerialPortManager::checkSerialPort(){
     } else {
         qCDebug(log_core_serial) << "Checking port, closed...";
         // check the port name available
-        if(!ready){
-            QString availablePort = getPortName();
-            if(availablePort != nullptr)
-                initializeSerialPort();
+        if(getPortName() != nullptr)
+        {
+            initializeSerialPort();
         }
     }
 }
